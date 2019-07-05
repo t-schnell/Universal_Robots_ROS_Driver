@@ -35,6 +35,7 @@ namespace ur_driver
 {
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
+  , joint_velocity_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
@@ -43,6 +44,7 @@ HardwareInterface::HardwareInterface()
   , joint_names_(6)
   , runtime_state_(static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
+  , velocity_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
   , controllers_initialized_(false)
@@ -246,6 +248,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     // Create joint position control interface
     pj_interface_.registerHandle(
         hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
+    vj_interface_.registerHandle(
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]));
     spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
   }
@@ -260,6 +264,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
   registerInterface(&pj_interface_);
+  registerInterface(&vj_interface_);
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
 
@@ -421,6 +426,10 @@ void HardwareInterface ::write(const ros::Time& time, const ros::Duration& perio
     {
       ur_driver_->writeJointCommand(joint_position_command_);
     }
+    else if (velocity_controller_running_)
+    {
+      ur_driver_->writeJointCommand(joint_velocity_command_);
+    }
     else if (robot_program_running_)
     {
       ur_driver_->writeKeepalive();
@@ -458,6 +467,7 @@ void HardwareInterface ::doSwitch(const std::list<hardware_interface::Controller
                                   const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
   position_controller_running_ = false;
+  velocity_controller_running_ = false;
   for (auto& controller_it : start_list)
   {
     for (auto& resource_it : controller_it.claimed_resources)
@@ -469,6 +479,10 @@ void HardwareInterface ::doSwitch(const std::list<hardware_interface::Controller
       if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
       {
         position_controller_running_ = true;
+      }
+      if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
+      {
+        velocity_controller_running_ = true;
       }
     }
   }
