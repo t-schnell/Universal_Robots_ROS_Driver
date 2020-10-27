@@ -122,6 +122,66 @@ public:
   }
 
   /*!
+   * \brief Writes needed information to the robot to be read by the URCaps program.
+   *
+   * \param trajectory_action 1 if a trajectory is to be started, -1 if it should be stopped
+   * \param point_number The number of points of the trajectory to be executed
+   *
+   * \returns True, if the write was performed successfully, false otherwise.
+   */
+  bool writeTrajectoryControlMessage(const int trajectory_action, const int point_number = 0)
+  {
+    uint8_t buffer[sizeof(int32_t) * 8];
+    uint8_t* b_pos = buffer;
+
+    // The first element is always the keepalive signal.
+    int32_t val = htobe32(trajectory_action);
+    b_pos += append(b_pos, val);
+
+    val = htobe32(point_number);
+    b_pos += append(b_pos, val);
+
+    size_t written;
+
+    return server_.write(buffer, sizeof(buffer), written);
+  }
+
+  /*!
+   * \brief Writes needed information to the robot to be read by the URCaps program.
+   *
+   * \param positions A vector of joint targets for the robot
+   * \param time The goal time to reach the target //TODO switch to float
+   *
+   * \returns True, if the write was performed successfully, false otherwise.
+   */
+  bool writeTrajectoryPoint(const vector6d_t* positions, const int goal_time = 1)
+  {
+    uint8_t buffer[sizeof(int32_t) * 8];
+    uint8_t* b_pos = buffer;
+
+    if (positions != nullptr)
+    {
+      for (auto const& pos : *positions)
+      {
+        int32_t val = static_cast<int32_t>(pos * MULT_JOINTSTATE);
+        val = htobe32(val);
+        b_pos += append(b_pos, val);
+      }
+    }
+    else
+    {
+      b_pos += 6 * sizeof(int32_t);
+    }
+
+    int32_t val = htobe32(goal_time);
+    b_pos += append(b_pos, val);
+
+    size_t written;
+
+    return server_.write(buffer, sizeof(buffer), written);
+  }
+
+  /*!
    * \brief Reads a keepalive signal from the robot.
    *
    * \returns The received keepalive string or the empty string, if nothing was received

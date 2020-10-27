@@ -205,6 +205,7 @@ void UrDriver::startWatchdog()
 {
   handle_program_state_(false);
   reverse_interface_.reset(new comm::ReverseInterface(reverse_port_));
+  trajectory_point_reverse_interface_.reset(new comm::ReverseInterface(50010));
   reverse_interface_active_ = true;
   LOG_DEBUG("Created reverse interface");
 
