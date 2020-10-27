@@ -532,24 +532,25 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
 
 void HardwareInterface::write(const ros::Time& time, const ros::Duration& period)
 {
-  if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
-       runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
-      robot_program_running_ && (!non_blocking_read_ || packet_read_))
-  {
-    if (position_controller_running_)
-    {
-      ur_driver_->writeJointCommand(joint_position_command_, comm::ControlMode::MODE_SERVOJ);
-    }
-    else if (velocity_controller_running_)
-    {
-      ur_driver_->writeJointCommand(joint_velocity_command_, comm::ControlMode::MODE_SPEEDJ);
-    }
-    else
-    {
-      ur_driver_->writeKeepalive();
-    }
-    packet_read_ = false;
-  }
+  //if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
+       //runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
+      //robot_program_running_ && (!non_blocking_read_ || packet_read_))
+  //{
+    //if (position_controller_running_)
+    //{
+      //ur_driver_->writeJointCommand(joint_position_command_, comm::ControlMode::MODE_SERVOJ);
+    //}
+    //else if (velocity_controller_running_)
+    //{
+      //ur_driver_->writeJointCommand(joint_velocity_command_, comm::ControlMode::MODE_SPEEDJ);
+    //}
+    //else
+    //{
+      //ur_driver_->writeKeepalive();
+    //}
+    //packet_read_ = false;
+  //}
+  //temporarily removed for testing
 }
 
 bool HardwareInterface::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,

@@ -128,6 +128,10 @@ public:
    */
   bool writeJointCommand(const vector6d_t& values, const comm::ControlMode control_mode);
 
+  bool writeTrajectoryPoint(const vector6d_t& values, const int goal_time = 1);
+
+  bool writeTrajectoryControlMessage(const int trajectory_action, const int point_number = 0);
+
   /*!
    * \brief Write a keepalive signal only.
    *

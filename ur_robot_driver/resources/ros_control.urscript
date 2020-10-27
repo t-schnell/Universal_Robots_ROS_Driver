@@ -125,7 +125,9 @@ def clear_remaining_trajectory_points():
 end
 
 socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
+textmsg("Socket connection to default socket")
 socket_open("{{SERVER_IP_REPLACE}}", 50010, "joint_trajectory_socket")
+textmsg("Socket connection to secondary socket")
 
 control_mode = MODE_TRAJECTORY_JOINT
 keepalive = 1

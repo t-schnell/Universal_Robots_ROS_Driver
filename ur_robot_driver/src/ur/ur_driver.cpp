@@ -176,6 +176,24 @@ bool UrDriver::writeJointCommand(const vector6d_t& values, const comm::ControlMo
   return false;
 }
 
+bool UrDriver::writeTrajectoryPoint(const vector6d_t& values, const int goal_time)
+{
+  if (reverse_interface_active_)
+  {
+    return reverse_interface_->writeTrajectoryPoint(&values, goal_time);
+  }
+  return false;
+}
+
+bool UrDriver::writeTrajectoryControlMessage(const int trajectory_action, const int point_number)
+{
+  if (reverse_interface_active_)
+  {
+    return reverse_interface_->writeTrajectoryControlMessage(trajectory_action, point_number);
+  }
+  return false;
+}
+
 bool UrDriver::writeKeepalive()
 {
   if (reverse_interface_active_)
