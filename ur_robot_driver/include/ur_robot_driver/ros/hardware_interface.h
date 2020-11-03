@@ -31,6 +31,7 @@
 #include <hardware_interface/force_torque_sensor_interface.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
+#include <pass_through_controllers/trajectory_interface.h>
 #include <algorithm>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64.h>
@@ -39,6 +40,9 @@
 #include <realtime_tools/realtime_publisher.h>
 #include "tf2_msgs/TFMessage.h"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
+#include <control_msgs/FollowJointTrajectoryAction.h>
+#include <control_msgs/FollowJointTrajectoryFeedback.h>
 
 #include <ur_msgs/IOStates.h>
 #include <ur_msgs/ToolDataMsg.h>
@@ -212,6 +216,10 @@ protected:
    */
   bool checkControllerClaims(const std::set<std::string>& claimed_resources);
 
+  void startJointInterpolation(const hardware_interface::JointTrajectory& trajectory);
+
+  void cancelJointInterpolation();
+
   ros::ServiceServer deactivate_srv_;
   ros::ServiceServer tare_sensor_srv_;
   ros::ServiceServer set_payload_srv_;
@@ -223,6 +231,10 @@ protected:
   hardware_interface::VelocityJointInterface vj_interface_;
   ur_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
+  hardware_interface::JointTrajectoryInterface jnt_traj_interface;
+
+  hardware_interface::JointTrajectory jnt_traj_cmd;
+  hardware_interface::JointTrajectoryFeedback jnt_traj_feedback;
 
   vector6d_t joint_position_command_;
   vector6d_t joint_velocity_command_;

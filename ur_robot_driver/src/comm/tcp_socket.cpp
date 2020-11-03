@@ -185,10 +185,14 @@ bool TCPSocket::write(const uint8_t* buf, const size_t buf_len, size_t& written)
 
   size_t remaining = buf_len;
 
+  std::cout << "Sending " << buf_len << std::endl;
+
   // handle partial sends
   while (written < buf_len)
   {
     ssize_t sent = ::send(socket_fd_, buf + written, remaining, 0);
+    std::cout << sent << std::endl;
+    std::cout << "WHAT? " << written << " " << buf_len << std::endl;
 
     if (sent <= 0)
     {
@@ -198,7 +202,10 @@ bool TCPSocket::write(const uint8_t* buf, const size_t buf_len, size_t& written)
 
     written += sent;
     remaining -= sent;
+    std::cout << written << " " << remaining << std::endl;
   }
+
+  std::cout << "Blub" << std::endl;
 
   return true;
 }

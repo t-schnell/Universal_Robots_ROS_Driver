@@ -1,4 +1,5 @@
-// this is for emacs file handling -*- mode: c++; indent-tabs-mode: nil -*-
+ // this is for emacs file handling -*- mode: c++; indent-tabs-mode: nil -*-
+ //
 
 // -- BEGIN LICENSE BLOCK ----------------------------------------------
 // Copyright 2019 FZI Forschungszentrum Informatik

@@ -131,19 +131,25 @@ public:
    */
   bool writeTrajectoryControlMessage(const int trajectory_action, const int point_number = 0)
   {
-    uint8_t buffer[sizeof(int32_t) * 8];
+    std::cout << "Writing traj msg" << std::endl;
+    uint8_t buffer[sizeof(int32_t) * 2];
     uint8_t* b_pos = buffer;
 
     // The first element is always the keepalive signal.
-    int32_t val = htobe32(trajectory_action);
+    //int32_t val = htobe32(trajectory_action);
+    int32_t val = htobe32(1);
     b_pos += append(b_pos, val);
 
-    val = htobe32(point_number);
+    //val = htobe32(point_number);
+    val = htobe32(1);
     b_pos += append(b_pos, val);
 
     size_t written;
 
+    std::cout << "Sending traj msg" << std::endl;
+    std::cout << sizeof(htobe32(trajectory_action)) << " " << sizeof(htobe32(point_number)) << " " << sizeof(buffer) << std::endl;
     return server_.write(buffer, sizeof(buffer), written);
+    std::cout << "Sent traj msg" << std::endl;
   }
 
   /*!
@@ -156,7 +162,9 @@ public:
    */
   bool writeTrajectoryPoint(const vector6d_t* positions, const int goal_time = 1)
   {
-    uint8_t buffer[sizeof(int32_t) * 8];
+
+    std::cout << "Writing traj point" << std::endl;
+    uint8_t buffer[sizeof(int32_t) * 7];
     uint8_t* b_pos = buffer;
 
     if (positions != nullptr)
@@ -178,6 +186,7 @@ public:
 
     size_t written;
 
+    std::cout << "Sending traj point" << std::endl;
     return server_.write(buffer, sizeof(buffer), written);
   }
 

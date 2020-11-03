@@ -107,6 +107,7 @@ void URServer::disconnectClient()
 
 bool URServer::write(const uint8_t* buf, size_t buf_len, size_t& written)
 {
+  std::cout << "Server: writing" << std::endl;
   return client_.write(buf, buf_len, written);
 }
 

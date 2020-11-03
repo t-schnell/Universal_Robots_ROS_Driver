@@ -180,7 +180,7 @@ bool UrDriver::writeTrajectoryPoint(const vector6d_t& values, const int goal_tim
 {
   if (reverse_interface_active_)
   {
-    return reverse_interface_->writeTrajectoryPoint(&values, goal_time);
+    return trajectory_point_reverse_interface_->writeTrajectoryPoint(&values, goal_time);
   }
   return false;
 }

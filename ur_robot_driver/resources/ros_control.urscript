@@ -104,6 +104,8 @@ end
 
 thread jointTrajectoryThread():
   textmsg("Executing joint trajectory")
+  textmsg(trajectory_points_left)
+  sleep(10.0)
   while trajectory_points_left > 0:
     enter_critical
     raw_point = socket_read_binary_integer(JOINT_TRAJECTORY_DATA_DIMENSION, "joint_trajectory_socket")
@@ -135,6 +137,7 @@ trajectory_thread = 0
 
 while keepalive > 0:
   params_mult = socket_read_binary_integer(2, "reverse_socket", 0.0)
+  textmsg(params_mult[0])
   enter_critical
   if params_mult[1] == TRAJECTORY_MODE_RECEIVE:
     kill trajectory_thread

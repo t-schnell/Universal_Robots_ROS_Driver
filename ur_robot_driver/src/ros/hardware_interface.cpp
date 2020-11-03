@@ -320,6 +320,14 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
       "industrial_robot_status_handle", robot_status_resource_));
 
+  hardware_interface::JointTrajectoryHandle joint_trajectory_handle =
+    hardware_interface::JointTrajectoryHandle(
+      &jnt_traj_cmd,
+      &jnt_traj_feedback,
+      std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1),
+      std::bind(&HardwareInterface::cancelJointInterpolation, this));
+  jnt_traj_interface.registerHandle(joint_trajectory_handle);
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
@@ -329,6 +337,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
   registerInterface(&robot_status_interface_);
+  registerInterface(&jnt_traj_interface);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
@@ -975,6 +984,33 @@ bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claim
     }
   }
   return false;
+}
+
+void HardwareInterface::startJointInterpolation(const hardware_interface::JointTrajectory& trajectory)
+{
+  int point_number = trajectory.trajectory.points.size();
+  ROS_ERROR_STREAM("Starting Trajectory! " << point_number);
+  ur_driver_->writeTrajectoryControlMessage(1, point_number);
+  for (size_t i = 0; i < point_number; i++)
+  {
+    auto point = trajectory.trajectory.points[point_number];
+    //vector6d_t p = [point.positions[0], point.positions[1], point.positions[2], point.positions[3], point.positions[4], point.positions[5]];
+    vector6d_t p;
+    p[0] = point.positions[0];
+    p[1] = point.positions[1];
+    p[2] = point.positions[2];
+    p[3] = point.positions[3];
+    p[4] = point.positions[4];
+    p[5] = point.positions[5];
+    ROS_ERROR_STREAM("Sending point " << i);
+    ur_driver_->writeTrajectoryPoint(p, 10);
+  }
+}
+
+void HardwareInterface::cancelJointInterpolation()
+{
+  ROS_ERROR_STREAM("Cancelling Trajectory!");
+  ur_driver_->writeTrajectoryControlMessage(-1);
 }
 }  // namespace ur_driver
 
