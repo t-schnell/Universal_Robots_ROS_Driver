@@ -525,6 +525,8 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     // TODO: This doesn't seem too bad currently, but we have to keep this in mind, when we
     // implement trajectory execution strategies that require a less reliable network connection.
     controller_reset_necessary_ = true;
+    robot_mode_ = ur_dashboard_msgs::RobotMode::DISCONNECTED;
+    publishRobotAndSafetyMode();
     if (!non_blocking_read_)
     {
       ROS_ERROR("Could not get fresh data package from robot");
